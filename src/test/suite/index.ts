@@ -1,8 +1,8 @@
-const path = require('path');
-const Mocha = require('mocha');
-const glob = require('glob');
+import * as path from 'path';
+import Mocha from 'mocha';
+import { glob } from 'glob';
 
-async function run() {
+export async function run(): Promise<void> {
 	// Create the mocha test
 	const mocha = new Mocha({
 		ui: 'tdd',
@@ -16,7 +16,7 @@ async function run() {
 	files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
 
 	try {
-		return new Promise((c, e) => {
+		return new Promise<void>((c, e) => {
 			// Run the mocha test
 			mocha.run(failures => {
 				if (failures > 0) {
@@ -30,7 +30,3 @@ async function run() {
 		console.error(err);
 	}
 }
-
-module.exports = {
-	run
-};
