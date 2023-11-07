@@ -8,7 +8,7 @@ Allows you to run commands directly into a tmux buffer from highlighted text wit
 
 ## Requirements
 
-For this extension to work you need a `tmux-send` command, this command should work in this format `tmux-send -s $session $window.$pane` and must be available from `%PATH`.
+You must have `tmux` installed, and be using it for session management
 
 ## Building
 
