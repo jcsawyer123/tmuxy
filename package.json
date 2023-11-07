@@ -4,6 +4,15 @@
   "description": "Tmux interface for VSCode",
   "publisher": "jcsawyer123",
   "version": "0.0.1",
+  "keywords": ["tmux", "terminal", "repl", "paste", "slime", "vim-slime"],
+  "homepage": "https://github.com/jcsawyer123/tmuxy",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jcsawyer123/tmuxy"
+  },
+  "bugs" :{
+    "url": "https://github.com/jcsawyer123/tmuxy/issues"
+  },
   "engines": {
     "vscode": "^1.84.0"
   },
