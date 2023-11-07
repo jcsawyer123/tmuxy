@@ -1,10 +1,6 @@
 import * as vscode from 'vscode';
-import { ChildProcess, exec } from 'child_process';
 import { hasSession, listTmuxPanes, listTmuxSessions, listTmuxWindows, sendKeysToTmux } from './tmux';
 
-
-/////////////////
-// Constants
 
 const extName: string = "tmuxy";
 
@@ -27,8 +23,10 @@ const commands: Command[] = [
 	},
 ];
 
-/////////////////
-// State
+
+/////////////////////////
+/// "STATE"
+
 let userCommand: string = "";
 let previousSession: string = '';
 let previousWindow: string = '';
@@ -39,9 +37,6 @@ function savePreviousValues(session: string, window: string, pane: string) {
 	previousWindow = window;
 	previousPane = pane;
 }
-
-/////////////////////////
-/// TMUX
 
 
 /////////////////////////
@@ -62,8 +57,6 @@ function extractSelectedText(editor: vscode.TextEditor): string {
 	return editor.document.lineAt(lineNo).text.trim();
 }
 
-/////////////////////////
-/// Helpers
 
 /////////////////////////
 /// Process / Command Handling
@@ -166,7 +159,7 @@ async function runCommandInBackgroundUsingSaved() {
 }
 
 ////////////////////////////
-/// Ext
+/// Extension
 
 
 export async function activate(context: vscode.ExtensionContext) {
