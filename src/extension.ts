@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { hasSession, listTmuxPanes, listTmuxSessions, listTmuxWindows, sendKeysToTmux } from './tmux';
+import { hasPaneKept, hasSession, hasWindow, listTmuxPanes, listTmuxSessions, listTmuxWindows, sendKeysToTmux } from './tmux';
 
 
 const extName: string = "tmuxy";
@@ -28,14 +28,21 @@ const commands: Command[] = [
 /// "STATE"
 
 let userCommand: string = "";
-let previousSession: string = '';
-let previousWindow: string = '';
-let previousPane: string = '';
 
-function savePreviousValues(session: string, window: string, pane: string) {
+let hasRan: Boolean = false;
+let previousSession: string = '';
+let previousWindowIndex: number = 1;
+let previousWindowName: string = "";
+let previousPaneIndex: string = '';
+let previousPaneCount: number;
+
+function savePreviousValues(session: string, windowIndex: number, windowName: string, paneCount: number, pane: string) {
+	hasRan = true;
 	previousSession = session;
-	previousWindow = window;
-	previousPane = pane;
+	previousWindowIndex = windowIndex;
+	previousWindowName = windowName;
+	previousPaneIndex = pane;
+	previousPaneCount = paneCount
 }
 
 
@@ -67,7 +74,7 @@ async function executeUserCommand(session: string, window: string, pane:string, 
 	  await sendKeysToTmux(session, window, pane, command);
 	} catch (error: any) {
 	  // Handle the error here
-	  vscode.window.showErrorMessage(`Error: ${error.message}`);
+	  vscode.window.showErrorMessage(`Tmuxy: Error: ${error.message}`);
 	}
   }
 
@@ -97,47 +104,61 @@ async function runCommandInBackground() {
 		}
 
 		const availableSessions = await listTmuxSessions();
-		if (!availableSessions) return;
+		if (!availableSessions) {
+			vscode.window.showErrorMessage(`Tmuxy: No tmux sessions available. Start a session using 'tmux'.`);
+			return;
+		}
 		const session = await showOptionsToUser(availableSessions, "Select a session");
-		if (!session) return;
-
-		vscode.window.showInformationMessage(`Has Session ${(await hasSession(session))}`);
-		vscode.window.showInformationMessage(`Has Session 2 ${(await hasSession("abc"))}`);
+		if (!session) { return };
 
 		const availableWindows = await listTmuxWindows(session);
-		let window = "1";
+		let windowIndexStr = "1";
 		if(availableWindows.length > 1) {
 			const windowInput = await showOptionsToUser(availableWindows, "Select a window");
-			window = windowInput?.split("")[0] || "1";
+			windowIndexStr = windowInput?.split("")[0] || "1";
 		}
+		let windowName = availableWindows[parseInt(windowIndexStr) - 1]
+		console.debug(await listTmuxWindows("main"))
+		console.debug(`Windows ${windowIndexStr}`)
 
-		const availablePanes = await listTmuxPanes(session, window);
+
+
+		const availablePanes = await listTmuxPanes(session, windowIndexStr);
 		let pane = "1";
 		if (availablePanes.length > 1) {
 			pane = (await showOptionsToUser(availablePanes.map(String), "Select a pane")) || "1";
 		}
 
-		savePreviousValues(session, window, pane);
+		savePreviousValues(session, parseInt(windowIndexStr), windowName, availablePanes.length, pane);
 
 		const userCommands = userCommand.split('\n');
-		await executeCommandList(userCommands, session, window, pane);
+		await executeCommandList(userCommands, session, windowIndexStr, pane);
 	} catch (error) {
-		console.log(">?");
 		console.error(error);
 	}
 }
-
-
 async function runCommandInBackgroundUsingSaved() {
 	const editor = vscode.window.activeTextEditor;
-	if (!editor) { return; }
+	const previous = [previousSession, previousWindowIndex, previousWindowName, previousPaneIndex];
 
+	if(!hasRan){
+		vscode.window.showErrorMessage(`Tmuxy: No saved values, please run direct. Default bind: 'Ctrl+K + Ctrl+C'`);
+	}
+
+	if (!editor) { return; }
 	try {
-		const previous = [previousSession, previousWindow, previousPane];
-		console.debug(previous);
-		if (previous.some(item => !item)) {
-			console.log("The array contains empty or null values.");
-			vscode.window.showErrorMessage(`No saved values`);
+
+		if (!await hasSession(previousSession)) {
+			vscode.window.showErrorMessage(`Tmuxy: Previous session is no longer available`);
+			return;
+		}
+		if (!await hasWindow(previousSession, previousWindowName)) {
+			vscode.window.showErrorMessage(`Tmuxy: Previous window is no longer available or has changed position`);
+			return;
+		}
+		if (!await hasPaneKept(previousSession, previousWindowIndex, previousPaneCount)) {
+			// TODO: May want to track previous number of panes, if that value changes we should probably reprompt to avoid accidentally putting data in the wrong pane
+			vscode.window.showErrorMessage(`Tmuxy: Number of panes available has changed, please run directly.`);
 			return;
 		}
 
@@ -152,7 +173,7 @@ async function runCommandInBackgroundUsingSaved() {
 		}
 
 		const userCommands = userCommand.split('\n');
-		await executeCommandList(userCommands, previousSession, previousWindow, previousPane);
+		await executeCommandList(userCommands, previousSession, previousWindowIndex.toString(), previousPaneIndex);
 	} catch (error) {
 		console.error(error);
 	}
