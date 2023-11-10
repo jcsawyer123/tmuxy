@@ -1,6 +1,4 @@
-import { exec, execSync, spawnSync } from "child_process";
-import { isNumber, isString } from "util";
-import { isNumberObject } from "util/types";
+import { exec, spawnSync } from "child_process";
 
 export async function listTmuxSessions(): Promise<string[] | undefined> {
 	const getTmuxSessions = "tmux list-sessions -F '#{session_name}'";
@@ -28,7 +26,7 @@ export async function listTmuxWindows(session: string): Promise<string[]> {
 	});
 }
 
-export async function listTmuxPanes(session: string, window: string): Promise<string[]> {
+export async function listTmuxPanes(session: string, window: string|number): Promise<string[]> {
 	const getTmuxSessions = `tmux list-panes -t ${session}:${window} -F '#{pane_index}'`;
 	return new Promise<string[]>((resolve, reject) => {
 		exec(getTmuxSessions, (error, stdout, stderr) => {
@@ -65,15 +63,13 @@ export async function hasPaneKept(session: string, window:string | number, PrevP
 	try {
 		// Note: If we have a different number of panes at all, we return false as  we don't want to assume a pane index is the same. (Panes may be removed)
 		const panes = await listTmuxPanes(session, windowVal);
-		console.debug(panes.length, PrevPaneCount);
 		return panes.length === PrevPaneCount
 	} catch (error) {
 		return false;
 	}
 };
-export function sendKeysToTmux(session: string | null, windowIndex: string, paneIndex: string | null, command: string): Promise<void> {
+export function sendKeysToTmux(session: string | null, windowIndex: string|number, paneIndex: string | number | null, command: string): Promise<void> {
 	return new Promise<void>((resolve, reject) => {
-		// console.debug(`Command: ${command}`);
 		let target = paneIndex !== null ? `${windowIndex}.${paneIndex}` : windowIndex;
 		if (session) {
 			target = `${session}:${target}`;
