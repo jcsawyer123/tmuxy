@@ -22,4 +22,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 - `Tmuxy: Send Command`, command to send contents of selection to terminal.
-- `Tmuxy: Send Command *Saved)`, command to send contents of selection to terminal using last used settigns.
+- `Tmuxy: Send Command (Saved)`, command to send contents of selection to terminal using last used settings.
