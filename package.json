@@ -3,7 +3,7 @@
   "displayName": "tmuxy",
   "description": "Tmux interface for VSCode",
   "publisher": "jcsawyer123",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "keywords": ["tmux", "terminal", "repl", "paste", "slime", "vim-slime"],
   "homepage": "https://github.com/jcsawyer123/tmuxy",
   "repository": {

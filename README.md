@@ -1,39 +1,41 @@
-# tmuxy README
+# Tmuxy - VS Code Tmux Integration
+Tmuxy is a VS Code extension that aims to seamlessly integrates with `tmux`, allowing you to execute snippets from your editor directly into your Tmux sessions. With Tmuxy, you can effortlessly run snippets in specific Tmux panes, making your development workflow even more efficient.
 
-Tmux integration within VSCode
+**Note:** This extension understably require `tmux` to be installed on your system and set to path.
 
 ## Features
 
-Allows you to run commands directly into a tmux buffer from highlighted text within vscode.
+**Run Commands in Tmux:**
+- Execute commands from VS Code directly into your Tmux sessions.
+Choose the Tmux session, window, and pane interactively.
 
-### Usage
-1. Running either command will take the line your cursor is on and send it the tmux target
-2. Running with text select will send each line in the selection to the tmux target one at a time, in order.
+**Flexible Execution**
+- Run commands on selected text lines or the current cursor line in the editor.
 
 
-### Commands
+## Commands
 
-`*tmuxy.RunCommand*` - Prompts direction from the user to select tmux `session`, `window` and `pane`. If only one is available for `window` and `pane` it will select them for you.
+- **`tmuxy.RunCommand`:**
+  - Prompts the user to select a Tmux `session`, `window`, or `pane`.
+  - If only one option is available for `window` and `pane`, Tmuxy will automatically select them.
 
-`tmuxy.RunCommandSaved` - Will run your selected code using the `session`, `window` and `pane` from last run aslong as they are still available and unchanged.
+- **`tmuxy.RunCommandSaved`:**
+  - Runs the selected code using the Tmux `session`, `window`, and `pane` from the last run, provided they are still available and unchanged.
 
-## Requirements
 
-You must have `tmux` installed, and be using it for session management
+## Usage
 
-## Building Locally
+### RunCommand `(Ctrl + K, Ctrl + C)`:
 
-To build and generate a .vsix
-```
-npm install -g @vscode/vsce
-vsce package
-```
+1. Select text lines or position the cursor on a line.
+2. Execute the command (`Ctrl + K, Ctrl + C`).
+3. Tmuxy will prompt you to choose a Tmux session, window, and pane.
+4. The selected or current line will be executed in the chosen Tmux pane.
 
-To publish to store
-```
-vsce publish
-```
+### RunCommandSaved `(Ctrl + K, Ctrl + X)`:
 
-### 0.0.1
+1. Select text lines or position the cursor on a line, then execute the command.
+2. Execute the command (`Ctrl + K, Ctrl + S`).
+3. If, you have used `RunCommand` prior and the target pane is stil available then it will use last.
+4. The selected or current line will be executed in the chosen Tmux pane.
 
-First release, supports `run command` and `run command (saved)` to send data to Tmux.
